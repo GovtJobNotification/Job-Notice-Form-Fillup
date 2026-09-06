@@ -220,9 +220,19 @@
   .notice-actions{
     display:flex;
     flex-direction:column;
-    gap:6px;
+    gap:10px;
     justify-content:center;
-    min-width:150px;
+    min-width:160px;
+  }
+  .action-item{
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+  }
+  .action-label{
+    font-size:11px;
+    font-weight:600;
+    color:var(--navy-dim);
   }
   .btn{
     display:inline-block;
@@ -513,8 +523,14 @@ function render(){
           </div>
         </div>
         <div class="notice-actions">
-          <a class="btn btn-primary" href="${n.officialUrl}" target="_blank" rel="noopener">Official Website</a>
-          <a class="btn btn-outline" href="${n.formUrl}" target="_blank" rel="noopener">Notification / Form</a>
+          <div class="action-item">
+            <span class="action-label">Official Notification</span>
+            <a class="btn btn-outline" href="${n.officialUrl}" target="_blank" rel="noopener">View Notification</a>
+          </div>
+          <div class="action-item">
+            <span class="action-label">Apply</span>
+            <a class="btn btn-primary" href="${n.formUrl}" target="_blank" rel="noopener">Apply Now</a>
+          </div>
         </div>
       </div>
     `).join('');
@@ -587,7 +603,8 @@ function parseCSV(text){
 }
 
 function loadFromSheet(url){
-  fetch(url)
+  const bustCacheUrl = url + (url.includes('?') ? '&' : '?') + 'cachebust=' + Date.now();
+  fetch(bustCacheUrl, { cache: "no-store" })
     .then(res => {
       if(!res.ok) throw new Error('Sheet fetch failed: ' + res.status);
       return res.text();
@@ -597,10 +614,26 @@ function loadFromSheet(url){
       if(rows.length < 2) return; // no data rows beyond header
       const header = rows[0].map(h => h.trim());
       const dataRows = rows.slice(1);
+
+      // Look up a column's value by trying several possible header spellings,
+      // matched case-insensitively — so small renames in the sheet (e.g.
+      // "officialUrl" vs "OfficialNoticeUrl") don't silently break the site.
+      function getField(raw, candidates){
+        const rawKeysLower = {};
+        Object.keys(raw).forEach(k => { rawKeysLower[k.toLowerCase()] = raw[k]; });
+        for(const c of candidates){
+          const val = rawKeysLower[c.toLowerCase()];
+          if(val) return val;
+        }
+        return "";
+      }
+
       const loaded = dataRows.map(r => {
         const raw = {};
         header.forEach((key, idx) => { raw[key] = (r[idx] || '').trim(); });
         // Map your sheet's actual column names to the fields the site uses.
+        const officialUrl = getField(raw, ["OfficialNoticeUrl", "officialUrl", "Official Notice Url", "Official Url"]);
+        const formUrl = getField(raw, ["FormUrl", "formUrl", "Form Url", "Apply Url"]);
         return {
           category: "job",
           tag: "new",
@@ -611,8 +644,8 @@ function loadFromSheet(url){
           ageLimit: raw["Age limit"] || "",
           startDate: raw["Start Date"] || "",
           lastDate: raw["LastDate"] || "",
-          officialUrl: raw["officialUrl"] || "#",
-          formUrl: raw["formUrl"] || raw["officialUrl"] || "#"
+          officialUrl: officialUrl || "#",
+          formUrl: formUrl || officialUrl || "#"
         };
       }).filter(n => n.title); // skip blank rows
       if(loaded.length){
