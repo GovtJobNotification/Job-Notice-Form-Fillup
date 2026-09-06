@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Notice & Form Fillup</title>
+<meta name="description" content="Job Notice & Form Fillup lists the latest government and private job openings, exam form fill-up dates, and admit card/result updates across departments, with direct links to official websites.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F3EFE4;
+    --paper-raised:#FBF9F3;
+    --navy:#17324D;
+    --navy-dim:#3B5069;
+    --brick:#B23A2E;
+    --green:#2F6F4E;
+    --ink:#24262B;
+    --line:#D9D2BF;
+    --line-strong:#B7AE94;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.serif{font-family:'Lora', serif;}
+
+  /* ---------- Header ---------- */
+  header{
+    background:var(--navy);
+    color:var(--paper-raised);
+    padding:0 24px;
+  }
+  .header-inner{
+    max-width:1100px;
+    margin:0 auto;
+    display:flex;
+    align-items:center;
+    gap:20px;
+    padding:18px 0;
+    flex-wrap:wrap;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .seal{
+    width:42px;height:42px;
+    border:2px solid var(--paper-raised);
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Lora',serif;
+    font-weight:700;
+    font-size:16px;
+    flex-shrink:0;
+  }
+  .brand-text h1{
+    margin:0;
+    font-size:22px;
+    line-height:1.1;
+    letter-spacing:.2px;
+  }
+  .brand-text span{
+    font-size:12.5px;
+    color:#C9D3DC;
+  }
+  .search-wrap{
+    margin-left:auto;
+    flex:1 1 260px;
+    max-width:380px;
+    position:relative;
+  }
+  .search-wrap input{
+    width:100%;
+    padding:10px 14px;
+    border-radius:4px;
+    border:1px solid var(--navy-dim);
+    background:#22405D;
+    color:#fff;
+    font-family:inherit;
+    font-size:14px;
+  }
+  .search-wrap input::placeholder{color:#9FB1C1;}
+  .search-wrap input:focus{outline:2px solid var(--brick); outline-offset:1px;}
+
+  nav.tabs{
+    background:var(--navy-dim);
+  }
+  .tabs-inner{
+    max-width:1100px;
+    margin:0 auto;
+    display:flex;
+    gap:2px;
+    overflow-x:auto;
+    padding:0 24px;
+  }
+  .tab-btn{
+    background:none;
+    border:none;
+    color:#DCE4EA;
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:14px;
+    font-weight:500;
+    padding:12px 16px;
+    cursor:pointer;
+    border-bottom:3px solid transparent;
+    white-space:nowrap;
+  }
+  .tab-btn:hover{ color:#fff; }
+  .tab-btn.active{
+    color:#fff;
+    border-bottom:3px solid var(--brick);
+    background:rgba(255,255,255,0.05);
+  }
+
+  /* ---------- Layout ---------- */
+  .page{
+    max-width:1100px;
+    margin:0 auto;
+    padding:28px 24px 60px;
+    display:grid;
+    grid-template-columns:1fr 260px;
+    gap:28px;
+  }
+  @media (max-width:800px){
+    .page{grid-template-columns:1fr;}
+  }
+
+  .section-title{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin:0 0 14px;
+  }
+  .section-title h2{
+    font-size:19px;
+    margin:0;
+    color:var(--navy);
+  }
+  .section-title .count{
+    font-size:13px;
+    color:var(--navy-dim);
+  }
+
+  .filter-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:20px;
+  }
+  .chip{
+    border:1px solid var(--line-strong);
+    background:var(--paper-raised);
+    color:var(--navy);
+    padding:6px 13px;
+    border-radius:16px;
+    font-size:13px;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .chip.active{
+    background:var(--navy);
+    color:#fff;
+    border-color:var(--navy);
+  }
+
+  /* ---------- Notice rows ---------- */
+  .notice{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-left:4px solid var(--navy);
+    border-radius:3px;
+    padding:14px 16px;
+    margin-bottom:12px;
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .notice.new{ border-left-color:var(--brick); }
+  .notice.result{ border-left-color:var(--green); }
+  .notice-main{flex:1 1 320px;}
+  .notice-top{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:4px;
+  }
+  .badge{
+    font-size:11px;
+    font-weight:600;
+    padding:2px 8px;
+    border-radius:3px;
+    letter-spacing:.3px;
+  }
+  .badge.dept{ background:#E4E9EE; color:var(--navy); }
+  .badge.tag-new{ background:var(--brick); color:#fff; }
+  .badge.tag-result{ background:var(--green); color:#fff; }
+  .badge.tag-form{ background:#8A6D1F; color:#fff; }
+  .notice-title{
+    font-size:15.5px;
+    font-weight:600;
+    color:var(--ink);
+    margin:2px 0 6px;
+  }
+  .notice-meta{
+    font-size:12.5px;
+    color:#5A5D66;
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .notice-meta b{ color:var(--ink); font-weight:600; }
+  .notice-actions{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    justify-content:center;
+    min-width:150px;
+  }
+  .btn{
+    display:inline-block;
+    text-align:center;
+    padding:7px 12px;
+    border-radius:3px;
+    font-size:13px;
+    font-weight:600;
+    text-decoration:none;
+    cursor:pointer;
+    border:1px solid transparent;
+  }
+  .btn-primary{ background:var(--navy); color:#fff; }
+  .btn-primary:hover{ background:#0F2438; }
+  .btn-outline{ background:transparent; border-color:var(--line-strong); color:var(--navy); }
+  .btn-outline:hover{ background:#EDE8D9; }
+
+  .empty{
+    padding:30px;
+    text-align:center;
+    color:var(--navy-dim);
+    background:var(--paper-raised);
+    border:1px dashed var(--line-strong);
+    border-radius:4px;
+  }
+
+  /* ---------- Sidebar ---------- */
+  .side-box{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:16px;
+    margin-bottom:20px;
+  }
+  .side-box h3{
+    font-size:14.5px;
+    margin:0 0 10px;
+    color:var(--navy);
+    padding-bottom:8px;
+    border-bottom:1px solid var(--line);
+  }
+  .side-list{ list-style:none; margin:0; padding:0; }
+  .side-list li{
+    font-size:13px;
+    padding:7px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .side-list li:last-child{border-bottom:none;}
+  .side-list a{ color:var(--ink); text-decoration:none; }
+  .side-list a:hover{ color:var(--brick); }
+  .side-list .date{ display:block; font-size:11.5px; color:var(--brick); margin-top:2px; font-weight:600; }
+
+  footer{
+    text-align:center;
+    font-size:12px;
+    color:var(--navy-dim);
+    padding:24px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="seal">JN</div>
+      <div class="brand-text">
+        <h1>Job Notice & Form Fillup</h1>
+        <span>Jobs · Exam Forms · Results — all in one notice board</span>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="Search post, department, exam...">
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="tabs-inner" id="tabBar">
+    <button class="tab-btn active" data-tab="all">Latest Notices</button>
+    <button class="tab-btn" data-tab="job">Job Openings</button>
+    <button class="tab-btn" data-tab="form">Exam / Form Fill-up</button>
+    <button class="tab-btn" data-tab="result">Admit Card &amp; Result</button>
+  </div>
+</nav>
+
+<div class="page">
+  <main>
+    <div class="section-title">
+      <h2 id="listTitle">Latest Notices</h2>
+      <span class="count" id="listCount"></span>
+    </div>
+
+    <div class="filter-row" id="deptFilterRow"></div>
+
+    <div id="noticeList"></div>
+  </main>
+
+  <aside>
+    <div class="side-box">
+      <h3>Departments</h3>
+      <ul class="side-list" id="deptSummary"></ul>
+    </div>
+    <div class="side-box">
+      <h3>Closing Soon</h3>
+      <ul class="side-list" id="closingSoon"></ul>
+    </div>
+  </aside>
+</div>
+
+<footer>
+  Job Notice & Form Fillup is an independent notice aggregator. Always apply only through the official website linked in each notice.
+</footer>
+
+<script>
+/* =========================================================================
+   Notices are loaded live from your Google Sheet (published as CSV).
+   Your sheet's columns are:
+   Post Name | Department | Vacancie | Qualification | Age limit |
+   Start Date | LastDate | officialUrl | formUrl
+
+   To add a new vacancy: just add a new row in the Google Sheet with
+   those same columns filled in. The site picks it up automatically
+   next time the page loads — no code editing needed.
+   ========================================================================= */
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRN-TYeFKwbvO6-nFPot6NcA3-ifgnUmnVVHdq0K8w6EEUQ7eczb8hG8tQQ7ktltSxW79nJWusetuoZ/pub?output=csv";
+
+const NOTICES = [
+  {
+    category: "job",
+    tag: "new",
+    department: "Assam Public Service Commission",
+    title: "Combined Competitive Examination (CCE) 2026 — 220 Posts",
+    posts: "220",
+    lastDate: "20 Sep 2026",
+    officialUrl: "https://apsc.nic.in",
+    formUrl: "https://apsc.nic.in/notifications"
+  },
+  {
+    category: "job",
+    tag: "new",
+    department: "Indian Railways (RRB)",
+    title: "RRB Non-Technical Popular Categories (NTPC) Recruitment",
+    posts: "8,113",
+    lastDate: "30 Sep 2026",
+    officialUrl: "https://www.rrbapply.gov.in",
+    formUrl: "https://www.rrbapply.gov.in"
+  },
+  {
+    category: "job",
+    tag: "",
+    department: "State Bank of India",
+    title: "Probationary Officer (PO) Recruitment 2026",
+    posts: "1,600",
+    lastDate: "12 Oct 2026",
+    officialUrl: "https://sbi.co.in/careers",
+    formUrl: "https://sbi.co.in/careers"
+  },
+  {
+    category: "job",
+    tag: "",
+    department: "Assam Police",
+    title: "Constable (Unarmed Branch) Recruitment",
+    posts: "3,200",
+    lastDate: "05 Oct 2026",
+    officialUrl: "https://assampolice.gov.in",
+    formUrl: "https://assampolice.gov.in"
+  },
+  {
+    category: "form",
+    tag: "form",
+    department: "SSC",
+    title: "SSC CGL 2026 — Online Form Fill-up",
+    posts: "—",
+    lastDate: "18 Sep 2026",
+    officialUrl: "https://ssc.nic.in",
+    formUrl: "https://ssc.nic.in/apply"
+  },
+  {
+    category: "form",
+    tag: "form",
+    department: "Dibrugarh University",
+    title: "B.A / B.Sc / B.Com Semester Exam Form Fill-up 2026",
+    posts: "—",
+    lastDate: "15 Sep 2026",
+    officialUrl: "https://dibru.ac.in",
+    formUrl: "https://dibru.ac.in/exam-forms"
+  },
+  {
+    category: "form",
+    tag: "form",
+    department: "Gauhati University",
+    title: "TDC 6th Semester Exam Form Fill-up",
+    posts: "—",
+    lastDate: "22 Sep 2026",
+    officialUrl: "https://gauhati.ac.in",
+    formUrl: "https://gauhati.ac.in/exam-forms"
+  },
+  {
+    category: "result",
+    tag: "result",
+    department: "SSC",
+    title: "SSC CHSL 2025 Final Result Declared",
+    posts: "—",
+    lastDate: "Declared",
+    officialUrl: "https://ssc.nic.in",
+    formUrl: "https://ssc.nic.in/results"
+  },
+  {
+    category: "result",
+    tag: "result",
+    department: "Assam Direct Recruitment",
+    title: "Grade III &amp; IV Admit Card Released",
+    posts: "—",
+    lastDate: "Download Now",
+    officialUrl: "https://ssa.assam.gov.in",
+    formUrl: "https://ssa.assam.gov.in/admit-card"
+  },
+  {
+    category: "job",
+    tag: "",
+    department: "UPSC",
+    title: "Civil Services Examination (Preliminary) 2027 Notification",
+    posts: "1,000+",
+    lastDate: "25 Oct 2026",
+    officialUrl: "https://upsc.gov.in",
+    formUrl: "https://upsc.gov.in/notifications"
+  }
+];
+
+let activeTab = "all";
+let activeDept = "All";
+let searchTerm = "";
+
+function badgeForTag(tag){
+  if(tag === "new") return '<span class="badge tag-new">NEW</span>';
+  if(tag === "result") return '<span class="badge tag-result">RESULT / ADMIT CARD</span>';
+  if(tag === "form") return '<span class="badge tag-form">FORM FILL-UP</span>';
+  return '';
+}
+
+function render(){
+  const titles = {all:"Latest Notices", job:"Job Openings", form:"Exam / Form Fill-up", result:"Admit Card & Result"};
+  document.getElementById('listTitle').textContent = titles[activeTab];
+
+  let items = NOTICES.filter(n => activeTab === "all" ? true : n.category === activeTab);
+
+  // department filter chips (built from currently visible tab's data)
+  const depts = ["All", ...new Set(items.map(n => n.department))];
+  const filterRow = document.getElementById('deptFilterRow');
+  filterRow.innerHTML = depts.map(d =>
+    `<button class="chip ${d===activeDept?'active':''}" data-dept="${d}">${d}</button>`
+  ).join('');
+  filterRow.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{ activeDept = chip.dataset.dept; render(); });
+  });
+
+  if(activeDept !== "All"){
+    items = items.filter(n => n.department === activeDept);
+  }
+  if(searchTerm.trim() !== ""){
+    const q = searchTerm.toLowerCase();
+    items = items.filter(n =>
+      n.title.toLowerCase().includes(q) || n.department.toLowerCase().includes(q)
+    );
+  }
+
+  document.getElementById('listCount').textContent = items.length + (items.length===1 ? " notice" : " notices");
+
+  const list = document.getElementById('noticeList');
+  if(items.length === 0){
+    list.innerHTML = '<div class="empty">No notices match this filter yet. Try a different department or search term.</div>';
+  } else {
+    list.innerHTML = items.map(n => `
+      <div class="notice ${n.tag==='new'?'new':''} ${n.tag==='result'?'result':''}">
+        <div class="notice-main">
+          <div class="notice-top">
+            <span class="badge dept">${n.department}</span>
+            ${badgeForTag(n.tag)}
+          </div>
+          <div class="notice-title">${n.title}</div>
+          <div class="notice-meta">
+            <span>Posts: <b>${n.posts}</b></span>
+            ${n.qualification ? `<span>Qualification: <b>${n.qualification}</b></span>` : ''}
+            ${n.ageLimit ? `<span>Age Limit: <b>${n.ageLimit}</b></span>` : ''}
+            ${n.startDate ? `<span>Start Date: <b>${n.startDate}</b></span>` : ''}
+            <span>Last Date: <b>${n.lastDate}</b></span>
+          </div>
+        </div>
+        <div class="notice-actions">
+          <a class="btn btn-primary" href="${n.officialUrl}" target="_blank" rel="noopener">Official Website</a>
+          <a class="btn btn-outline" href="${n.formUrl}" target="_blank" rel="noopener">Notification / Form</a>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  renderSidebar();
+}
+
+function renderSidebar(){
+  const deptCounts = {};
+  NOTICES.forEach(n => { deptCounts[n.department] = (deptCounts[n.department]||0)+1; });
+  const deptSummary = document.getElementById('deptSummary');
+  deptSummary.innerHTML = Object.entries(deptCounts).map(([d,c])=>
+    `<li><a href="#" data-dept="${d}">${d}</a> &nbsp;(${c})</li>`
+  ).join('');
+  deptSummary.querySelectorAll('a').forEach(a=>{
+    a.addEventListener('click', (e)=>{
+      e.preventDefault();
+      activeTab = "all";
+      activeDept = a.dataset.dept;
+      document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
+      document.querySelector('.tab-btn[data-tab="all"]').classList.add('active');
+      render();
+    });
+  });
+
+  const closing = [...NOTICES].filter(n=>n.category!=="result").slice(0,5);
+  document.getElementById('closingSoon').innerHTML = closing.map(n=>
+    `<li><a href="${n.officialUrl}" target="_blank" rel="noopener">${n.title}</a><span class="date">${n.lastDate}</span></li>`
+  ).join('');
+}
+
+document.getElementById('tabBar').addEventListener('click', (e)=>{
+  if(e.target.classList.contains('tab-btn')){
+    document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
+    e.target.classList.add('active');
+    activeTab = e.target.dataset.tab;
+    activeDept = "All";
+    render();
+  }
+});
+
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+  searchTerm = e.target.value;
+  render();
+});
+
+/* ---------- Load from Google Sheet (if configured) ---------- */
+function parseCSV(text){
+  // Minimal CSV parser that handles quoted fields containing commas.
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for(let i=0; i<text.length; i++){
+    const c = text[i], next = text[i+1];
+    if(inQuotes){
+      if(c === '"' && next === '"'){ field += '"'; i++; }
+      else if(c === '"'){ inQuotes = false; }
+      else { field += c; }
+    } else {
+      if(c === '"'){ inQuotes = true; }
+      else if(c === ','){ row.push(field); field=''; }
+      else if(c === '\n' || c === '\r'){
+        if(field !== '' || row.length){ row.push(field); rows.push(row); row=[]; field=''; }
+        if(c === '\r' && next === '\n') i++;
+      } else { field += c; }
+    }
+  }
+  if(field !== '' || row.length){ row.push(field); rows.push(row); }
+  return rows.filter(r => r.length && r.some(v => v.trim() !== ''));
+}
+
+function loadFromSheet(url){
+  fetch(url)
+    .then(res => {
+      if(!res.ok) throw new Error('Sheet fetch failed: ' + res.status);
+      return res.text();
+    })
+    .then(text => {
+      const rows = parseCSV(text);
+      if(rows.length < 2) return; // no data rows beyond header
+      const header = rows[0].map(h => h.trim());
+      const dataRows = rows.slice(1);
+      const loaded = dataRows.map(r => {
+        const raw = {};
+        header.forEach((key, idx) => { raw[key] = (r[idx] || '').trim(); });
+        // Map your sheet's actual column names to the fields the site uses.
+        return {
+          category: "job",
+          tag: "new",
+          department: raw["Department"] || "",
+          title: raw["Post Name"] || "",
+          posts: raw["Vacancie"] || "",
+          qualification: raw["Qualification"] || "",
+          ageLimit: raw["Age limit"] || "",
+          startDate: raw["Start Date"] || "",
+          lastDate: raw["LastDate"] || "",
+          officialUrl: raw["officialUrl"] || "#",
+          formUrl: raw["formUrl"] || raw["officialUrl"] || "#"
+        };
+      }).filter(n => n.title); // skip blank rows
+      if(loaded.length){
+        NOTICES.length = 0;
+        NOTICES.push(...loaded);
+        render();
+      }
+    })
+    .catch(err => {
+      console.warn('Could not load notices from Google Sheet, showing sample data instead.', err);
+    });
+}
+
+render();
+if(SHEET_CSV_URL.trim() !== ""){
+  loadFromSheet(SHEET_CSV_URL.trim());
+}
+</script>
+
+</body>
+</html>
